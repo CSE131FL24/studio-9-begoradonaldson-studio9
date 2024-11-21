@@ -3,98 +3,133 @@ package studio9;
 import java.util.LinkedList;
 
 public class Polynomial {
-	
-	private LinkedList<Double> list;
 
-	/**
-	 * Constructs a Polynomial with no terms yet.
-	 */
-	public Polynomial() {
-		//FIXME
-	}
+    private LinkedList<Double> list;
 
-	
-	/**
-	 * 
-	 * @param coeff
-	 * @return polynomial with added term
-	 */
-	public void addTerm(double coeff) {
-		//FIXME
-	}
-	
-	/*
-	 * Returns a String of the polynomial with the proper form:
-	 * 
-	 * Cx^N + Cx^N-1 + ... + Cx + C
-	 */
-	public String toString() {
-		return ""; //FIXME
-	}
-	
-	/**
-	 * 
-	 * @param x
-	 * @return value of polynomial at that x
-	 */
-	public double evaluate(double x) {
-		return 0;//FIXME
-	}
+    /**
+     * Constructs a Polynomial with no terms yet.
+     */
+    public Polynomial() {
+        this.list = new LinkedList<>();
+    }
 
-	
-	public Polynomial derivative() {
-		return null;//FIXME
-	}
-	
+    /**
+     * Constructs a Polynomial with the provided list of coefficients.
+     *
+     * @param list the coefficients of the polynomial
+     */
+    public Polynomial(LinkedList<Double> list) {
+        this.list = new LinkedList<>(list); // Create a new list to avoid direct reference
+    }
 
-	/**
-	 * This is the "equals" method that is called by
-	 *    assertEquals(...) from your JUnit test code.
-	 *    It must be prepared to compare this Polynomial
-	 *    with any other kind of Object (obj).  Eclipse
-	 *    automatically generated the code for this method,
-	 *    after I told it to use the contained list as the basis
-	 *    of equality testing.  I have annotated the code to show
-	 *    what is going on.
-	 */
+    /**
+     * Adds a term to the polynomial with the given coefficient.
+     *
+     * @param coeff the coefficient of the new term
+     */
+    public void addTerm(double coeff) {
+        list.add(coeff);
+    }
 
-	public boolean equals(Object obj) {
-		// If the two objects are exactly the same object,
-		//    we are required to return true.  The == operator
-		//    tests whether they are exactly the same object.
-		if (this == obj)
-			return true;
-		// "this" object cannot be null (or we would have
-		//    experienced a null-pointer exception by now), but
-		//    obj can be null.  We are required to say the two
-		//    objects are not the same if obj is null.
-		if (obj == null)
-			return false;
+    /**
+     * Returns a String representation of the polynomial in the proper form:
+     * Cx^N + Cx^(N-1) + ... + Cx + C
+     */
+    @Override
+    public String toString() {
+        StringBuilder poly = new StringBuilder();
 
-		//  The two objects must be Polynomials (or better) to
-		//     allow meaningful comparison.
-		if (!(obj instanceof Polynomial))
-			return false;
+        for (int i = 0; i < list.size(); i++) {
+            double coeff = list.get(i);
+            if (coeff != 0) {
+                int power = list.size() - 1 - i;
 
-		// View the obj reference now as the Polynomial we know
-		//   it to be.  This works even if obj is a BetterPolynomial.
-		Polynomial other = (Polynomial) obj;
+                if (poly.length() > 0) {
+                    poly.append(" + ");
+                }
 
-		//
-		// If we get here, we have two Polynomial objects,
-		//   this and other,
-		//   and neither is null.  Eclipse generated code
-		//   to make sure that the Polynomial's list references
-		//   are non-null, but we can prove they are not null
-		//   because the constructor sets them to some object.
-		//   I cleaned up that code to make this read better.
+                if (power == 0) {
+                    poly.append(coeff);
+                } else if (power == 1) {
+                    poly.append(coeff).append("x");
+                } else {
+                    poly.append(coeff).append("x^").append(power);
+                }
+            }
+        }
 
+        return poly.toString().isEmpty() ? "0" : poly.toString();
+    }
 
-		// A LinkedList object is programmed to compare itself
-		//   against any other LinkedList object by checking
-		//   that the elements in each list agree.
+    /**
+     * Evaluates the polynomial at the given value of x.
+     *
+     * @param x the value at which to evaluate the polynomial
+     * @return the result of the polynomial evaluation
+     */
+    public double evaluate(double x) {
+        double result = 0;
+        for (int i = 0; i < list.size(); i++) {
+            double coeff = list.get(i);
+            int power = list.size() - 1 - i;
 
-		return this.list.equals(other.list);
-	}
+            result += coeff * Math.pow(x, power);
+        }
+        return result;
+    }
 
+    /**
+     * Computes the derivative of the polynomial.
+     *
+     * @return a new Polynomial that is the derivative of this polynomial
+     */
+    public Polynomial derivative() {
+        if (list.size() <= 1) {
+            return new Polynomial(); // Derivative of a constant or empty polynomial is 0
+        }
+
+        LinkedList<Double> derivativeCoefficients = new LinkedList<>();
+        for (int i = 0; i < list.size() - 1; i++) {
+            double coeff = list.get(i);
+            int power = list.size() - 1 - i;
+            derivativeCoefficients.add(coeff * power);
+        }
+
+        return new Polynomial(derivativeCoefficients);
+    }
+
+    /**
+     * Checks if this polynomial is equal to another polynomial.
+     *
+     * @param obj the object to compare with
+     * @return true if the polynomials are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || !(obj instanceof Polynomial)) return false;
+
+        Polynomial other = (Polynomial) obj;
+        return this.list.equals(other.list);
+    }
+
+    /**
+     * Example usage and testing of the Polynomial class.
+     */
+    public static void main(String[] args) {
+        // Create a polynomial 3x^2 + 2x + 1
+        Polynomial poly = new Polynomial();
+        poly.addTerm(3.0); // Coefficient of x^2
+        poly.addTerm(2.0); // Coefficient of x^1
+        poly.addTerm(1.0); // Coefficient of x^0
+
+        System.out.println("Polynomial: " + poly); // 3x^2 + 2x + 1
+
+        // Evaluate at x = 2
+        System.out.println("P(2): " + poly.evaluate(2)); // 17.0
+
+        // Compute the derivative: 6x + 2
+        Polynomial derivative = poly.derivative();
+        System.out.println("Derivative: " + derivative); // 6x + 2
+    }
 }
